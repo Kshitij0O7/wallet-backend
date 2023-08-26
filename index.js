@@ -15,14 +15,18 @@ const createAccount = (user) => {
 
 const user = {name: '', account: ''};
 createAccount(user);
-//console.log(user.account.address);
+console.log(user.account.address);
 const privateKey = process.env['privateKey'];
 //console.log(privateKey);
 const testAccount = web3.eth.accounts.privateKeyToAccount(`0x${privateKey}`);
-//console.log(testAccount.address)
+console.log(testAccount)
 const createSignedTx = async (rawTx) => {
-    rawTx.gas = await web3.eth.estimateGas(rawTx);
-    return await testAccount.signTransaction(rawTx);
+    //rawTx.gas = await web3.eth.estimateGas(rawTx);
+    try {
+        return await testAccount.signTransaction(rawTx);
+    } catch (error) {
+        return error;
+    }
 }
 
 const sendSignedTx = async (signedTx) => {
@@ -30,7 +34,16 @@ const sendSignedTx = async (signedTx) => {
 }
 const amount = '0.001'//ether
 const rawTx = {
+    from:testAccount.address,
     to: user.account.address,
-    value: web3.utils.toWei(amount, 'ether')
+    value: web3.utils.toWei(amount, 'ether'),
+    gasPrice: "20000000000",
+    gas: "21000",
+    //gasPrice: await web3.eth.getGasPrice()
 };
-createSignedTx(rawTx).then(sendSignedTx);
+//createSignedTx(rawTx).then(console.log);
+try {
+    createSignedTx(rawTx).then(sendSignedTx);
+} catch (error) {
+    console.log(error);
+}
